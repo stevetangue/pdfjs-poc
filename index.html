@@ -1,0 +1,94 @@
+<!DOCTYPE html><meta charset="utf-8" />
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PDFJS TextLayer Example</title>
+    <style type="text/css">
+      #the-canvas {
+        border: 1px solid black;
+        direction: ltr;
+      }
+    </style>
+
+    <!-- <link
+      rel="stylesheet"
+      href="https://raw.githubusercontent.com/mozilla/pdf.js/master/web/text_layer_builder.css"
+    />
+    <script src="https://raw.githubusercontent.com/mozilla/pdf.js/master/web/ui_utils.js"></script>
+    <script src="https://raw.githubusercontent.com/mozilla/pdf.js/master/web/text_layer_builder.js"></script> -->
+    <!--    
+      <script src="pdf.js/web/ui_utils.js"></script>
+      <script src="pdf.js/web/text_layer_builder.js"></script>
+    --> 
+
+    <link rel="stylesheet" href="https://unpkg.com/pdfjs-dist/web/pdf_viewer.css">
+    <script src="https://unpkg.com/pdfjs-dist/build/pdf.js"></script>
+    <script src="https://unpkg.com/pdfjs-dist/web/pdf_viewer.js"></script>
+
+    <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://unpkg.com/pdfjs-dist@2.4.456/build/pdf.worker.min.js";
+    </script>
+
+
+  </head>
+  <body>
+    <div id="pageContainer" class="pdfViewer singlePageView"></div>
+    <script>
+      "use strict";
+
+      // The workerSrc property shall be specified.
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://unpkg.com/pdfjs-dist/build/pdf.worker.js";
+
+      // Some PDFs need external cmaps.
+      var CMAP_URL = "https://unpkg.com/pdfjs-dist/cmaps/";
+      var CMAP_PACKED = true;
+
+      var DEFAULT_URL = "./vue-essential.pdf";
+      var PAGE_TO_VIEW = 2;
+      var SCALE = 1.0;
+
+      var container = document.getElementById("pageContainer");
+
+      var eventBus = new pdfjsViewer.EventBus();
+
+      // Loading document.
+      var loadingTask = pdfjsLib.getDocument({
+        url: DEFAULT_URL,
+        cMapUrl: CMAP_URL,
+        cMapPacked: CMAP_PACKED,
+      });
+
+
+      loadingTask.promise.then(function (pdfDocument) {
+        
+        // Document loaded, retrieving the page.
+        return pdfDocument.getPage(PAGE_TO_VIEW).then(function (pdfPage) {
+         
+          // Creating the page view with default parameters.
+          var pdfPageView = new pdfjsViewer.PDFPageView({
+            container: container,
+            id: PAGE_TO_VIEW,
+            scale: SCALE,
+            defaultViewport: pdfPage.getViewport({ scale: SCALE }),
+            eventBus: eventBus,
+            // TODO explore this further text/annotations layers 
+            // text_layer_builders.js > createTextLayerBuilder
+
+            // We can enable text/annotations layers, if needed
+            textLayerFactory: new pdfjsViewer.DefaultTextLayerFactory(),
+            annotationLayerFactory: new pdfjsViewer.DefaultAnnotationLayerFactory(),
+          });
+
+
+          // Associates the actual page with the view, and drawing it
+          pdfPageView.setPdfPage(pdfPage);
+          return pdfPageView.draw();
+        });
+      });
+
+    </script>
+  </body>
+</html>
